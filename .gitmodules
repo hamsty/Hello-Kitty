@@ -1,3 +1,3 @@
-[submodule "lib/Led-Table-NxN"]
-	path = lib/Led-Table-NxN
+[submodule "lib/Led_Table_NxN"]
+	path = lib/Led_Table_NxN
 	url = https://github.com/hamsty/Led-Table-NxN
