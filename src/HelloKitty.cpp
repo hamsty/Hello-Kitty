@@ -2,18 +2,20 @@
 #include <SPIFFS.h>
 #include <LedTableNxN.h>
 #include <Adafruit_NeoPixel.h>
+#if MESA == 0
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <ESPmDNS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#endif
 
 #define DATA_PIN 15
-
+#if MESA == 0
 const char *casa = "Talles";
 const char *senha = "talles12345";
-
 static AsyncWebServer server(80);
+#endif
 
 static LedTableNxN display(12, DATA_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -44,17 +46,19 @@ void drawImage(int16_t x, int16_t y, String file)
 void setup()
 {
     Serial.begin(115200);
+    if (!SPIFFS.begin(true))
+    {
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
+    #if MESA == 0
     WiFi.begin(casa, senha);
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
         Serial.print(".");
     }
-    if (!SPIFFS.begin(true))
-    {
-        Serial.println("SPIFFS Mount Failed");
-        return;
-    }
+    
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send(SPIFFS, "/index.html", "text/html", false); });
     server.on("/mesa.js", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -77,8 +81,11 @@ void setup()
     Serial.println("Servidor Iniciado");
     Serial.print("Acessa em casa http://");
     Serial.println(WiFi.localIP());
+    #endif
     drawImage(0, 0, "/kitty12.bin");
-    // display.show();
+    #if MESA == 1
+    display.show();
+    #endif
 }
 
 void loop()
